@@ -1,0 +1,63 @@
+# this is an attempt to run the Flink service in a session mode. It was hard to debug to get the logs from the submitter (outside of the failure exceptions)
+
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper-flinkapp
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka-flinkapp
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+  
+  jobmanager:
+    image: flink:1.17
+    command: jobmanager
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./log4j.properties:/opt/flink/conf/log4j.properties
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - FLINK_PROPERTIES=taskmanager.numberOfTaskSlots: 2
+
+  taskmanager:
+    image: flink:1.17
+    command: taskmanager
+    depends_on:
+      - jobmanager
+    volumes:
+      - ./log4j.properties:/opt/flink/conf/log4j.properties
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+      - FLINK_PROPERTIES=taskmanager.numberOfTaskSlots: 2
+
+  submitter:
+    image: flink:1.17
+    container_name: submitter
+    depends_on:
+      - jobmanager
+    volumes:
+      - ./job:/opt/flink/usrlib
+    entrypoint: >
+      bash -c "
+        sleep 10 &&
+        echo 'submitter start' &&
+        echo $(ls -la /opt/flink/usrlib) && 
+        flink run -d -c com.example.FlinkKafkaApp /opt/flink/usrlib/flink-kafka-app-1.0-SNAPSHOT.jar || echo '💥 Flink job submission failed!' ;
+        tail -f /dev/null
+      "
