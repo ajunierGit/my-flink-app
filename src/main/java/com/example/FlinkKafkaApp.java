@@ -8,6 +8,12 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.kafka.clients.admin.*;
 import org.slf4j.LoggerFactory;
+
+import org.apache.kafka.common.serialization.StringDeserializer;
+
+import com.example.deserialization.UserJsonKafkaDeserializationSchema;
+import com.example.model.User;
+
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -35,19 +41,17 @@ public class FlinkKafkaApp {
         // Step 2: Set up Flink execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        System.out.println("SOP HELLO WOLRD");
-
         // Step 3: Create Kafka Source
-        KafkaSource<String> kafkaSource = KafkaSource.<String>builder()
+        KafkaSource<User> kafkaSource = KafkaSource.<User>builder()
                 .setBootstrapServers(bootstrapServers)
                 .setTopics(topic)
-                .setGroupId("flink-consumer-group")
+                .setGroupId("myflink-consumer-group")
                 .setStartingOffsets(OffsetsInitializer.earliest()) // Start reading from beginning
-                .setValueOnlyDeserializer(new SimpleStringSchema()) // Deserialize string messages
+                .setDeserializer(new UserJsonKafkaDeserializationSchema()) // Deserialize string messages
                 .build();
 
         // Step 4: Read from Kafka using the new KafkaSource
-        DataStream<String> stream = env.fromSource(
+        DataStream<User> stream = env.fromSource(
                 kafkaSource,
                 WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(5)), // Handles event-time processing
                 "Kafka Source"
@@ -59,6 +63,7 @@ public class FlinkKafkaApp {
         // Step 6: Execute Flink Job
         env.execute("Flink Kafka Consumer App (KafkaSource)");
     }
+
 
     /**
      * Checks if a Kafka topic exists and creates it if missing.

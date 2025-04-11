@@ -1,1 +1,3 @@
 /Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/FlinkKafkaApp.java
+/Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/deserialization/UserJsonKafkaDeserializationSchema.java
+/Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/model/User.java
