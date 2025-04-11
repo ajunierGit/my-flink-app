@@ -1,3 +1,5 @@
 com/example/deserialization/UserJsonKafkaDeserializationSchema.class
 com/example/model/User.class
+com/example/FlinkKafkaApp$1.class
 com/example/FlinkKafkaApp.class
+com/example/serialization/UserToJsonSerialization.class

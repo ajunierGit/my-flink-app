@@ -1,7 +1,9 @@
 package com.example;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -9,9 +11,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.kafka.clients.admin.*;
 import org.slf4j.LoggerFactory;
 
-import org.apache.kafka.common.serialization.StringDeserializer;
 
 import com.example.deserialization.UserJsonKafkaDeserializationSchema;
+import com.example.serialization.UserToJsonSerialization;
+
+
 import com.example.model.User;
 
 import org.slf4j.Logger;
@@ -29,14 +33,16 @@ public class FlinkKafkaApp {
         String bootstrapServers = "kafka-flinkapp:9092";
 
         // String bootstrapServers = "localhost:9092";
-        String topic = "my-topic";
+        String topic = "user";
+        String outputTopic = "userTransformed";
         int partitions = 1;
         short replicationFactor = 1;
 
         LOG.info("Hello World, I am a running Flink Application.");
 
-        // Step 1: Ensure Kafka topic exists
+        // Step 1: Ensure Kafka topics exist
         ensureKafkaTopicExists(bootstrapServers, topic, partitions, replicationFactor);
+        ensureKafkaTopicExists(bootstrapServers, outputTopic, partitions, replicationFactor);
 
         // Step 2: Set up Flink execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -51,14 +57,37 @@ public class FlinkKafkaApp {
                 .build();
 
         // Step 4: Read from Kafka using the new KafkaSource
-        DataStream<User> stream = env.fromSource(
+        DataStream<User> userStream = env.fromSource(
                 kafkaSource,
                 WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(5)), // Handles event-time processing
                 "Kafka Source"
         );
 
         // Step 5: Print the received messages
-        stream.print();
+        userStream.print();
+
+        // Send data to Sink 
+        DataStream<User> updatedUser = userStream.map(new MapFunction<User,User>() {
+            @Override
+            public User map(User inputUser) {
+                User outputUser = inputUser;
+                outputUser.name += "-transformed";
+                return outputUser;
+            }
+            
+        });
+
+        KafkaSink<User> kafkaSink = KafkaSink.<User>builder()
+            .setBootstrapServers(bootstrapServers)
+            .setRecordSerializer(
+                 KafkaRecordSerializationSchema.builder()
+                    .setTopic(outputTopic)
+                    .setValueSerializationSchema(new UserToJsonSerialization())
+                    .build()
+                )
+            // .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+            .build();
+        updatedUser.sinkTo(kafkaSink);
 
         // Step 6: Execute Flink Job
         env.execute("Flink Kafka Consumer App (KafkaSource)");

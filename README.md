@@ -37,7 +37,7 @@
 The Flink application is now able to read messages (key, value) from my topic with a defined schema. 
 To insert messages in the topic, i am running the command:
 ```
-docker exec -it kafka-flinkapp sh -c "echo 'key1:{\"id\": 123, \"name\": \"Aurore\", \"active\": true}' | /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server kafka-flinkapp:9092 --topic my-topic --property parse.key=true --property key.separator=:"
+docker exec -it kafka-flinkapp sh -c "echo 'key1:{\"id\": 123, \"name\": \"Aurore\", \"active\": true}' | /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server kafka-flinkapp:9092 --topic user --property parse.key=true --property key.separator=:"
 ```
 
 ## NEXT
