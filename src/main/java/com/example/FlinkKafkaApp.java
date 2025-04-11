@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.example.deserialization.UserJsonKafkaDeserializationSchema;
 import com.example.serialization.UserToJsonSerialization;
 
-
 import com.example.model.User;
 
 import org.slf4j.Logger;
@@ -71,7 +70,7 @@ public class FlinkKafkaApp {
             @Override
             public User map(User inputUser) {
                 User outputUser = inputUser;
-                outputUser.name += "-transformed";
+                outputUser.setName(outputUser.getName() + "-transformed");
                 return outputUser;
             }
             
