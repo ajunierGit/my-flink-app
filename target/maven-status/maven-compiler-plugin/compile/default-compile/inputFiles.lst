@@ -1,4 +1,6 @@
-/Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/FlinkKafkaApp.java
-/Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/deserialization/UserJsonKafkaDeserializationSchema.java
-/Users/aurora/Projects/flinkPractice/my-flink-app/src/main/java/com/example/serialization/UserToJsonSerialization.java
-/Users/aurora/Projects/flinkPractice/my-flink-app/target/generated-sources/jsonschema2pojo/com/example/model/User.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/src/main/java/com/example/FlinkKafkaApp.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/src/main/java/com/example/deserialization/UserJsonKafkaDeserializationSchema.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/src/main/java/com/example/serialization/UserToJsonSerialization.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/src/main/java/com/example/typeInfo/FriendListTypeInfoFactory.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/target/generated-sources/jsonschema2pojo/com/example/model/User.java
+/Users/aurora/Projects/flinkPractice/myflink-app-parent/my-flink-app/target/generated-sources/jsonschema2pojo/com/example/model/UserWithFriends.java

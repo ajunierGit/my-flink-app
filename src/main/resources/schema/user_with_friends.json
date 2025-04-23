@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/schema",
+    "title": "UserWithFriends",
+    "type": "object",
+    "properties": {
+        "userData": {
+            "$ref": "user.json"
+        },
+        "friends": {
+            "type": "array",
+            "items": {
+                "$ref": "user.json"
+            }
+        }
+    },
+    "additionalProperties": false
+  }

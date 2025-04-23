@@ -1,5 +1,8 @@
+com/example/typeInfo/FriendListTypeInfoFactory.class
 com/example/deserialization/UserJsonKafkaDeserializationSchema.class
 com/example/model/User.class
+com/example/model/UserWithFriends.class
+com/example/FlinkKafkaApp$2.class
 com/example/FlinkKafkaApp$1.class
 com/example/FlinkKafkaApp.class
 com/example/serialization/UserToJsonSerialization.class

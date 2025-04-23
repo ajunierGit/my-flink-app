@@ -2,6 +2,8 @@ package com.example;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -16,6 +18,7 @@ import com.example.deserialization.UserJsonKafkaDeserializationSchema;
 import com.example.serialization.UserToJsonSerialization;
 
 import com.example.model.User;
+import com.example.model.UserWithFriends;
 
 import org.slf4j.Logger;
 
@@ -45,9 +48,10 @@ public class FlinkKafkaApp {
 
         // Step 2: Set up Flink execution environment
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.getConfig().disableGenericTypes();
 
         // Step 3: Create Kafka Source
-        KafkaSource<User> kafkaSource = KafkaSource.<User>builder()
+        KafkaSource<UserWithFriends> kafkaSource = KafkaSource.<UserWithFriends>builder()
                 .setBootstrapServers(bootstrapServers)
                 .setTopics(topic)
                 .setGroupId("myflink-consumer-group")
@@ -56,20 +60,21 @@ public class FlinkKafkaApp {
                 .build();
 
         // Step 4: Read from Kafka using the new KafkaSource
-        DataStream<User> userStream = env.fromSource(
+        DataStream<UserWithFriends> userStream = env
+            .fromSource(
                 kafkaSource,
                 WatermarkStrategy.forBoundedOutOfOrderness(Duration.ofSeconds(5)), // Handles event-time processing
-                "Kafka Source"
-        );
+                "Kafka Source")
+            .returns(TypeInformation.of(new TypeHint<UserWithFriends>() {}));
 
         // Step 5: Print the received messages
         userStream.print();
 
         // Send data to Sink 
-        DataStream<User> updatedUser = userStream.map(new MapFunction<User,User>() {
+        DataStream<User> updatedUser = userStream.map(new MapFunction<UserWithFriends,User>() {
             @Override
-            public User map(User inputUser) {
-                User outputUser = inputUser;
+            public User map(UserWithFriends inputUser) {
+                User outputUser = inputUser.getUserData();
                 outputUser.setName(outputUser.getName() + "-transformed");
                 return outputUser;
             }

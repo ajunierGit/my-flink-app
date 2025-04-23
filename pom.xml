@@ -1,14 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
-  <artifactId>flink-kafka-app</artifactId>
-  <!-- <artifactId>my-flink-app</artifactId> -->
+
+  <parent>
+    <groupId>com.example</groupId>
+    <artifactId>my-parent-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <!-- <groupId>com.example</groupId> -->
+  <artifactId>my-flink-app</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>flink-kafka-app</name>
-  <!-- <name>my-flink-app</name> -->
-  <url>http://maven.apache.org</url>
+  <!-- <version>1.0-SNAPSHOT</version> -->
+  <!-- <name>flink-kafka-app</name> -->
+  <!-- <url>http://maven.apache.org</url> -->
+
+  <properties>
+    <flink.version>1.18.0</flink.version>
+  </properties>
 
   <repositories>
     <repository>
@@ -80,6 +89,16 @@
             </goals>
           </execution>
         </executions>
+
+        <!-- 👇👇 This is key: put the dependency here to make it available to the plugin -->
+        <dependencies>
+          <dependency>
+            <groupId>com.annotator.custom</groupId>
+            <artifactId>custom-annotator</artifactId>
+            <version>1.0-SNAPSHOT</version>
+          </dependency>
+        </dependencies>
+        
         <configuration>
           <sourceDirectory>${project.basedir}/src/main/resources/schema</sourceDirectory>
           <targetPackage>com.example.model</targetPackage>
@@ -104,10 +123,12 @@
           <serializable>true</serializable>
           <includeGeneratedAnnotation>false</includeGeneratedAnnotation>
           <generateBuilders>false</generateBuilders>
-          <accessorStyle>properties</accessorStyle> <!-- This line enables getters/setters -->
+          <accessorStyle>properties</accessorStyle>
+          <customAnnotator>com.annotator.custom.CustomAnnotator</customAnnotator>
+          <customRuleFactory>org.jsonschema2pojo.rules.RuleFactory</customRuleFactory>
         </configuration>
-      </plugin>
 
+      </plugin>
     </plugins>
   </build>
 
@@ -117,20 +138,20 @@
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-streaming-java</artifactId>
-      <version>1.17.1</version>
+      <version>${flink.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.flink</groupId>
       <artifactId>flink-clients</artifactId>
-      <version>1.17.1</version>
+      <version>${flink.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-core</artifactId>
+      <version>${flink.version}</version>
     </dependency>
 
     <!-- Kafka Connector -->
-    <!-- <dependency>
-      <groupId>org.apache.flink</groupId>
-      <artifactId>flink-connector-kafka</artifactId>
-      <version>1.17.1</version>
-    </dependency> -->
     <dependency>
         <groupId>org.apache.flink</groupId>
         <artifactId>flink-connector-kafka</artifactId>
@@ -170,5 +191,23 @@
       <scope>test</scope>
     </dependency>
 
-  </dependencies>
+    <!-- <dependency>
+      <groupId>com.sun.codemodel</groupId>
+      <artifactId>codemodel</artifactId>
+      <version>2.6</version>
+    </dependency> -->
+
+    <dependency>
+      <groupId>org.jsonschema2pojo</groupId>
+      <artifactId>jsonschema2pojo-core</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.annotator.custom</groupId>
+      <artifactId>custom-annotator</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    </dependencies>
 </project>

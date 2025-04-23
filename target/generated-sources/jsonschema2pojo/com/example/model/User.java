@@ -36,11 +36,6 @@ public class User implements Serializable
      */
     @JsonProperty("name")
     private String name;
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("active")
     private boolean active;
     private final static long serialVersionUID = 8311475781623146552L;
@@ -105,21 +100,11 @@ public class User implements Serializable
         this.name = name;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("active")
     public boolean isActive() {
         return active;
     }
 
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("active")
     public void setActive(boolean active) {
         this.active = active;

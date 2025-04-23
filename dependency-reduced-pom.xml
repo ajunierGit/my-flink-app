@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>my-parent-project</artifactId>
+    <groupId>com.example</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
-  <artifactId>flink-kafka-app</artifactId>
-  <name>flink-kafka-app</name>
-  <version>1.0-SNAPSHOT</version>
-  <url>http://maven.apache.org</url>
+  <artifactId>my-flink-app</artifactId>
   <build>
     <plugins>
       <plugin>
@@ -57,6 +58,13 @@
             </goals>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.annotator.custom</groupId>
+            <artifactId>custom-annotator</artifactId>
+            <version>1.0-SNAPSHOT</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <sourceDirectory>${project.basedir}/src/main/resources/schema</sourceDirectory>
           <targetPackage>com.example.model</targetPackage>
@@ -82,6 +90,8 @@
           <includeGeneratedAnnotation>false</includeGeneratedAnnotation>
           <generateBuilders>false</generateBuilders>
           <accessorStyle>properties</accessorStyle>
+          <customAnnotator>com.annotator.custom.CustomAnnotator</customAnnotator>
+          <customRuleFactory>org.jsonschema2pojo.rules.RuleFactory</customRuleFactory>
         </configuration>
       </plugin>
     </plugins>
@@ -105,4 +115,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <properties>
+    <flink.version>1.18.0</flink.version>
+  </properties>
 </project>

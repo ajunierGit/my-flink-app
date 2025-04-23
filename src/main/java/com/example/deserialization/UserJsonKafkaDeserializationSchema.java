@@ -15,9 +15,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.nio.charset.StandardCharsets;
 
 import com.example.FlinkKafkaApp;
-import com.example.model.User;
+import com.example.model.UserWithFriends;
 
-public class UserJsonKafkaDeserializationSchema implements KafkaRecordDeserializationSchema<User> {
+public class UserJsonKafkaDeserializationSchema implements KafkaRecordDeserializationSchema<UserWithFriends> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FlinkKafkaApp.class);
 
@@ -30,14 +30,14 @@ public class UserJsonKafkaDeserializationSchema implements KafkaRecordDeserializ
     }
 
     @Override
-    public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<User> out) {
+    public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<UserWithFriends> out) {
         try {
             // Deserialize the JSON message Key
             String keyStr = new String(record.key(), StandardCharsets.UTF_8);
             LOG.info("my record KEY is: "+keyStr);
 
             // Deserialize JSON message value to POJO class            
-            User user = objectMapper.readValue(record.value(), User.class);
+            UserWithFriends user = objectMapper.readValue(record.value(), UserWithFriends.class);
             out.collect(user); // Collect the deserialized object into the collector
         } catch (Exception e) {
             // Handle or log the exception in an appropriate way
@@ -46,7 +46,7 @@ public class UserJsonKafkaDeserializationSchema implements KafkaRecordDeserializ
     }
 
     @Override
-    public TypeInformation<User> getProducedType() {
-        return TypeInformation.of(User.class); // Return the TypeInformation of the POJO
+    public TypeInformation<UserWithFriends> getProducedType() {
+        return TypeInformation.of(UserWithFriends.class); // Return the TypeInformation of the POJO
     }
 }
